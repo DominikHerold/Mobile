@@ -31,4 +31,4 @@ db.lock
 storage.ide
 storage.ide-shm
 storage.ide-wal
-dotnettest.conf
+mobile.conf
