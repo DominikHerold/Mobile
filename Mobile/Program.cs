@@ -85,6 +85,10 @@ namespace Mobile
             var client = new HttpClient();
             var toSend = string.Concat(PushoverKey, price);
             toSend = string.Format("{0}&title={1}&url={2}", toSend, title, url);
+            var now = DateTime.Now;
+            if (now.Hour >= 22 || now.Hour < 7)
+                toSend = string.Format("{0}&sound=none", toSend);
+
             client.PostAsync("https://api.pushover.net/1/messages.json", new StringContent(toSend, Encoding.UTF8, "application/x-www-form-urlencoded")).GetAwaiter().GetResult();
         }
     }
