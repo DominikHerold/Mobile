@@ -19,6 +19,14 @@ namespace Mobile
         {
             Console.WriteLine("Start");
 
+            var ebayData = DownloadString("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
+            var ebayNodes = GetEbayNodes(ebayData);
+            foreach (var ebayNode in ebayNodes)
+            {
+                var ebayTuple = GetEbayData(ebayNode);
+                Urls.Add(ebayTuple.Item3);
+            }
+
             Timer = new Timer(1800000, false);
             Timer.Elapsed += CheckCars;
 
@@ -51,6 +59,21 @@ namespace Mobile
 
                     SendToPushoverApi(title, price, url);
                 }
+
+                var ebayData = DownloadString("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
+                var ebayNodes = GetEbayNodes(ebayData);
+                foreach (var ebayNode in ebayNodes)
+                {
+                    var ebayTuple = GetEbayData(ebayNode);
+                    if (!Urls.Add(ebayTuple.Item3))
+                        continue;
+
+                    Console.WriteLine(ebayTuple.Item1);
+                    Console.WriteLine(ebayTuple.Item2);
+                    Console.WriteLine(ebayTuple.Item3);
+
+                    SendToPushoverApi(ebayTuple.Item1, ebayTuple.Item2, ebayTuple.Item3);
+                }
             }
             catch (Exception ex)
             {
@@ -78,6 +101,27 @@ namespace Mobile
             var nodes = htmlDoc.DocumentNode.SelectNodes("//span[@class='new-headline-label']");
 
             return nodes;
+        }
+
+        private static IEnumerable<HtmlNode> GetEbayNodes(string data)
+        {
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(data);
+            var nodes = htmlDoc.DocumentNode.SelectNodes("//article[@class='aditem']");
+
+            return nodes;
+        }
+
+        private static Tuple<string, string, string> GetEbayData(HtmlNode node)
+        {
+            var mainNode = node.SelectSingleNode(".//section[@class='aditem-main']");
+            var a = mainNode.SelectSingleNode(".//a");
+            var url = string.Format("https://www.ebay-kleinanzeigen.de{0}", a.GetAttributeValue("href", "NotFound"));
+            var title = a.InnerText;
+            var detailNode = node.SelectSingleNode(".//section[@class='aditem-details']");
+            var price = detailNode.SelectSingleNode(".//strong").InnerText;
+
+            return new Tuple<string, string, string>(title, price, url);
         }
 
         private static void SendToPushoverApi(string title, string price, string url)
