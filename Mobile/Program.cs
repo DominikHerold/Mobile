@@ -18,14 +18,9 @@ namespace Mobile
         private static void Main()
         {
             Console.WriteLine("Start");
-
-            var ebayData = DownloadString("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
-            var ebayNodes = GetEbayNodes(ebayData);
-            foreach (var ebayNode in ebayNodes)
-            {
-                var ebayTuple = GetEbayData(ebayNode);
-                Urls.Add(ebayTuple.Item3);
-            }
+            
+            DoStart("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
+            DoStart("http://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
 
             Timer = new Timer(1800000, false);
             Timer.Elapsed += CheckCars;
@@ -36,44 +31,67 @@ namespace Mobile
             Timer.Dispose();
         }
 
+        private static void DoStart(string ebayUrl)
+        {
+            var ebayData = DownloadString(ebayUrl);
+            var ebayNodes = GetEbayNodes(ebayData);
+            foreach (var ebayNode in ebayNodes)
+            {
+                var ebayTuple = GetEbayData(ebayNode);
+                Urls.Add(ebayTuple.Item3);
+            }
+        }
+
+        private static void DoMobile(string mobileUrl)
+        {
+            var data = DownloadString(mobileUrl);
+            var nodes = GetNodes(data);
+            foreach (var node in nodes)
+            {
+                var parent = node.ParentNode.ParentNode.ParentNode.ParentNode.ParentNode.ParentNode;
+                var href = parent.GetAttributeValue("href", "NotFound");
+                var ampIndex = href.IndexOf("&", StringComparison.Ordinal);
+                var url = href.Substring(0, ampIndex);
+                if (!Urls.Add(url))
+                    continue;
+
+                var title = parent.SelectSingleNode(".//span[@class='h3 u-text-break-word']").InnerText;
+                var price = parent.SelectSingleNode(".//span[@class='h3 u-block']").InnerText;
+                Console.WriteLine(title);
+                Console.WriteLine(price);
+                Console.WriteLine(url);
+
+                SendToPushoverApi(title, price, url);
+            }
+        }
+
+        private static void DoEbay(string ebayUrl)
+        {
+            var ebayData = DownloadString(ebayUrl);
+            var ebayNodes = GetEbayNodes(ebayData);
+            foreach (var ebayNode in ebayNodes)
+            {
+                var ebayTuple = GetEbayData(ebayNode);
+                if (!Urls.Add(ebayTuple.Item3))
+                    continue;
+
+                Console.WriteLine(ebayTuple.Item1);
+                Console.WriteLine(ebayTuple.Item2);
+                Console.WriteLine(ebayTuple.Item3);
+
+                SendToPushoverApi(ebayTuple.Item1, ebayTuple.Item2, ebayTuple.Item3);
+            }
+        }
+
         private static void CheckCars(object sender, EventArgs e)
         {
             try
             {
-                var data = DownloadString("http://suchen.mobile.de/auto/ford-transit-nugget.html");
-                var nodes = GetNodes(data);
-                foreach (var node in nodes)
-                {
-                    var parent = node.ParentNode.ParentNode.ParentNode.ParentNode.ParentNode.ParentNode;
-                    var href = parent.GetAttributeValue("href", "NotFound");
-                    var ampIndex = href.IndexOf("&", StringComparison.Ordinal);
-                    var url = href.Substring(0, ampIndex);
-                    if (!Urls.Add(url))
-                        continue;
-
-                    var title = parent.SelectSingleNode(".//span[@class='h3 u-text-break-word']").InnerText;
-                    var price = parent.SelectSingleNode(".//span[@class='h3 u-block']").InnerText;
-                    Console.WriteLine(title);
-                    Console.WriteLine(price);
-                    Console.WriteLine(url);
-
-                    SendToPushoverApi(title, price, url);
-                }
-
-                var ebayData = DownloadString("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
-                var ebayNodes = GetEbayNodes(ebayData);
-                foreach (var ebayNode in ebayNodes)
-                {
-                    var ebayTuple = GetEbayData(ebayNode);
-                    if (!Urls.Add(ebayTuple.Item3))
-                        continue;
-
-                    Console.WriteLine(ebayTuple.Item1);
-                    Console.WriteLine(ebayTuple.Item2);
-                    Console.WriteLine(ebayTuple.Item3);
-
-                    SendToPushoverApi(ebayTuple.Item1, ebayTuple.Item2, ebayTuple.Item3);
-                }
+                DoMobile("http://suchen.mobile.de/auto/ford-transit-nugget.html");
+                DoMobile("http://suchen.mobile.de/auto/ford-euroline.html");
+                
+                DoEbay("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
+                DoEbay("http://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
             }
             catch (Exception ex)
             {
