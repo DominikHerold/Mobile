@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 
@@ -55,8 +56,15 @@ namespace Mobile
                 if (!Urls.Add(url))
                     continue;
 
+                if (GetMobileKm(url) > 110000)
+                    continue;
+
                 var title = parent.SelectSingleNode(".//span[@class='h3 u-text-break-word']").InnerText;
                 var price = parent.SelectSingleNode(".//span[@class='h3 u-block']").InnerText;
+
+                if (!title.Contains("Ford") && !title.Contains("ford") && !title.Contains("FORD"))
+                    continue;
+
                 Console.WriteLine(title);
                 Console.WriteLine(price);
                 Console.WriteLine(url);
@@ -73,6 +81,9 @@ namespace Mobile
             {
                 var ebayTuple = GetEbayData(ebayNode);
                 if (!Urls.Add(ebayTuple.Item3))
+                    continue;
+
+                if (GetEbayKm(ebayTuple.Item3) > 110000)
                     continue;
 
                 Console.WriteLine(ebayTuple.Item1);
@@ -152,6 +163,51 @@ namespace Mobile
                 toSend = string.Format("{0}&sound=none", toSend);
 
             client.PostAsync("https://api.pushover.net/1/messages.json", new StringContent(toSend, Encoding.UTF8, "application/x-www-form-urlencoded")).GetAwaiter().GetResult();
+        }
+
+        private static int GetEbayKm(string url)
+        {
+            try
+            {
+                var ebayData = DownloadString(url);
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(ebayData);
+                var nodes = htmlDoc.DocumentNode.SelectNodes("//dt[@class='attributelist--key']");
+                var kmNode = nodes.FirstOrDefault(n => n.InnerText.Contains("Kilometerstand"));
+                if (kmNode == null)
+                    return 0;
+
+                var kmString = kmNode.NextSibling.NextSibling.SelectSingleNode(".//span").InnerText.Trim().Replace(".", string.Empty);
+                var km = Convert.ToInt32(kmString);
+                return km;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return 0;
+            }
+        }
+
+        private static int GetMobileKm(string url)
+        {
+            try
+            {
+                var mobileData = DownloadString(url);
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(mobileData);
+                var kmNode = htmlDoc.DocumentNode.SelectSingleNode("//div[@id='rbt-mileage-v']");
+                if (kmNode == null)
+                    return 0;
+
+                var kmString = new string(kmNode.InnerText.Where(char.IsDigit).ToArray());
+                var km = Convert.ToInt32(kmString);
+                return km;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return 0;
+            }
         }
     }
 }
