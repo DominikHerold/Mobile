@@ -143,11 +143,11 @@ namespace Mobile
 
         private static Tuple<string, string, string> GetEbayData(HtmlNode node)
         {
-            var mainNode = node.SelectSingleNode(".//section[@class='aditem-main']");
+            var mainNode = node.SelectSingleNode(".//div[@class='aditem-main']");
             var a = mainNode.SelectSingleNode(".//a");
             var url = string.Format("https://www.ebay-kleinanzeigen.de{0}", a.GetAttributeValue("href", "NotFound"));
             var title = a.InnerText;
-            var detailNode = node.SelectSingleNode(".//section[@class='aditem-details']");
+            var detailNode = node.SelectSingleNode(".//div[@class='aditem-details']");
             var price = detailNode.SelectSingleNode(".//strong").InnerText;
 
             return new Tuple<string, string, string>(title, price, url);
