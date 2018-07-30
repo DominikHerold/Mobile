@@ -98,8 +98,8 @@ namespace Mobile
         {
             try
             {
-                DoMobile("http://suchen.mobile.de/auto/ford-transit-nugget.html");
-                DoMobile("http://suchen.mobile.de/auto/ford-euroline.html");
+                //DoMobile("http://suchen.mobile.de/auto/ford-transit-nugget.html");
+                //DoMobile("http://suchen.mobile.de/auto/ford-euroline.html");
                 
                 DoEbay("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
                 DoEbay("http://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
