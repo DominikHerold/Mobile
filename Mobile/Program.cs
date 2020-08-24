@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 using HtmlAgilityPack;
 
@@ -128,6 +129,7 @@ namespace Mobile
 
         private static string DownloadString(string address)
         {
+            Task.Delay(TimeSpan.FromSeconds(91)).GetAwaiter().GetResult();
             using (var webClient = new HttpClient())
             {
                 var data = webClient.GetAsync(address).GetAwaiter().GetResult().Content.ReadAsStringAsync().GetAwaiter().GetResult();
