@@ -24,7 +24,7 @@ namespace Mobile
             DoStart("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
             DoStart("http://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
 
-            Timer = new Timer(1800000, false);
+            Timer = new Timer((int)TimeSpan.FromHours(25).TotalMilliseconds, false);
             Timer.Elapsed += CheckCars;
 
             CheckCars(null, null);
