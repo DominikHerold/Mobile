@@ -75,6 +75,8 @@ namespace Mobile
 
         private static void DoEbay(string ebayUrl)
         {
+            Tuple<string, string, string> toBeSend = null;
+            var maxEbayKm = 1;
             var ebayData = DownloadString(ebayUrl);
             var ebayNodes = GetEbayNodes(ebayData);
             foreach (var ebayNode in ebayNodes)
@@ -87,11 +89,20 @@ namespace Mobile
                 if (ebayKm > 160000 || ebayKm == 0)
                     continue;
 
+                if (ebayKm > maxEbayKm)
+                {
+                    maxEbayKm = ebayKm;
+                    toBeSend = ebayTuple;
+                }
+
                 Console.WriteLine(ebayTuple.Item1);
                 Console.WriteLine(ebayTuple.Item2);
                 Console.WriteLine(ebayTuple.Item3);
+            }
 
-                SendToPushoverApi(ebayTuple.Item1, ebayTuple.Item2, ebayTuple.Item3);
+            if (toBeSend != null)
+            {
+                SendToPushoverApi(toBeSend.Item1, toBeSend.Item2, toBeSend.Item3);
             }
         }
 
