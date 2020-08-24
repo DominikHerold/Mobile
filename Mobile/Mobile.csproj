@@ -8,7 +8,6 @@
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.6.2" />
     <PackageReference Include="MathNet.Numerics.Core" Version="3.17.0" />
-    <PackageReference Include="System.Net.Http.WinHttpHandler" Version="4.5.2" />
   </ItemGroup>
 
 </Project>

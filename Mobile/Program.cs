@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 using HtmlAgilityPack;
 
@@ -100,8 +98,8 @@ namespace Mobile
         {
             try
             {
-                DoMobile("http://suchen.mobile.de/auto/ford-transit-nugget.html");
-                DoMobile("http://suchen.mobile.de/auto/ford-euroline.html");
+                //DoMobile("http://suchen.mobile.de/auto/ford-transit-nugget.html");
+                //DoMobile("http://suchen.mobile.de/auto/ford-euroline.html");
                 
                 DoEbay("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
                 DoEbay("http://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
@@ -118,11 +116,9 @@ namespace Mobile
 
         private static string DownloadString(string address)
         {
-            using (var webClient = new HttpClient(new Http2CustomHandler()))
+            using (var webClient = new HttpClient())
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, address);
-                request.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
-                var data = webClient.SendAsync(request).GetAwaiter().GetResult().Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var data = webClient.GetAsync(address).GetAwaiter().GetResult().Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 return data;
             }
         }
@@ -212,15 +208,6 @@ namespace Mobile
                 Console.WriteLine(ex.Message);
                 return 0;
             }
-        }
-    }
-
-    public class Http2CustomHandler : WinHttpHandler
-    {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            request.Version = new Version("2.0");
-            return base.SendAsync(request, cancellationToken);
         }
     }
 }
