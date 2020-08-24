@@ -83,7 +83,8 @@ namespace Mobile
                 if (!Urls.Add(ebayTuple.Item3))
                     continue;
 
-                if (GetEbayKm(ebayTuple.Item3) > 110000)
+                var ebayKm = GetEbayKm(ebayTuple.Item3);
+                if (ebayKm > 160000 || ebayKm == 0)
                     continue;
 
                 Console.WriteLine(ebayTuple.Item1);
@@ -172,12 +173,12 @@ namespace Mobile
                 var ebayData = DownloadString(url);
                 var htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(ebayData);
-                var nodes = htmlDoc.DocumentNode.SelectNodes("//dt[@class='attributelist--key']");
+                var nodes = htmlDoc.DocumentNode.SelectNodes("//li[@class='addetailslist--detail']");
                 var kmNode = nodes.FirstOrDefault(n => n.InnerText.Contains("Kilometerstand"));
                 if (kmNode == null)
                     return 0;
 
-                var kmString = kmNode.NextSibling.NextSibling.SelectSingleNode(".//span").InnerText.Trim().Replace(".", string.Empty);
+                var kmString = new string(kmNode.SelectSingleNode(".//span").InnerText.Where(char.IsDigit).ToArray());
                 var km = Convert.ToInt32(kmString);
                 return km;
             }
