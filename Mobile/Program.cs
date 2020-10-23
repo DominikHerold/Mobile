@@ -203,12 +203,12 @@ namespace Mobile
         {
             try
             {
-                var ebayData = DownloadString(url);
-                var htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(ebayData);
                 IEnumerable<HtmlNode> nodes;
                 do
                 {
+                    var ebayData = DownloadString(url);
+                    var htmlDoc = new HtmlDocument();
+                    htmlDoc.LoadHtml(ebayData);
                     nodes = htmlDoc.DocumentNode.SelectNodes("//li[@class='addetailslist--detail']");
                 }
                 while (nodes == null && ThreadSleep5Minutes());
