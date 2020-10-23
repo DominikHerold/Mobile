@@ -20,9 +20,9 @@ namespace Mobile
         private static void Main()
         {
             Console.WriteLine("Start");
-            
-            DoStart("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
-            DoStart("http://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
+
+            DoStart("https://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
+            DoStart("https://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
 
             Timer = new Timer((int)TimeSpan.FromHours(25).TotalMilliseconds, false);
             Timer.Elapsed += CheckCars;
@@ -113,9 +113,9 @@ namespace Mobile
             {
                 //DoMobile("http://suchen.mobile.de/auto/ford-transit-nugget.html");
                 //DoMobile("http://suchen.mobile.de/auto/ford-euroline.html");
-                
-                DoEbay("http://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
-                DoEbay("http://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
+
+                DoEbay("https://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
+                DoEbay("https://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
             }
             catch (Exception ex)
             {
