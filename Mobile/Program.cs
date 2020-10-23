@@ -35,8 +35,14 @@ namespace Mobile
 
         private static void DoStart(string ebayUrl)
         {
-            var ebayData = DownloadString(ebayUrl);
-            var ebayNodes = GetEbayNodes(ebayData);
+            IEnumerable<HtmlNode> ebayNodes;
+            do
+            {
+                var ebayData = DownloadString(ebayUrl);
+                ebayNodes = GetEbayNodes(ebayData);
+            }
+            while (ebayNodes == null && ThreadSleep5Minutes());
+
             foreach (var ebayNode in ebayNodes)
             {
                 var ebayTuple = GetEbayData(ebayNode);
@@ -74,12 +80,26 @@ namespace Mobile
             }
         }
 
+        private static bool ThreadSleep5Minutes()
+        {
+            Console.WriteLine("delay");
+            Task.Delay(TimeSpan.FromMinutes(5)).GetAwaiter().GetResult();
+
+            return true;
+        }
+
         private static void DoEbay(string ebayUrl)
         {
             Tuple<string, string, string> toBeSend = null;
             var maxEbayKm = 1;
-            var ebayData = DownloadString(ebayUrl);
-            var ebayNodes = GetEbayNodes(ebayData);
+            IEnumerable<HtmlNode> ebayNodes;
+            do
+            {
+                var ebayData = DownloadString(ebayUrl);
+                ebayNodes = GetEbayNodes(ebayData);
+            }
+            while (ebayNodes == null && ThreadSleep5Minutes());
+
             foreach (var ebayNode in ebayNodes)
             {
                 var ebayTuple = GetEbayData(ebayNode);
@@ -186,7 +206,13 @@ namespace Mobile
                 var ebayData = DownloadString(url);
                 var htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(ebayData);
-                var nodes = htmlDoc.DocumentNode.SelectNodes("//li[@class='addetailslist--detail']");
+                IEnumerable<HtmlNode> nodes;
+                do
+                {
+                    nodes = htmlDoc.DocumentNode.SelectNodes("//li[@class='addetailslist--detail']");
+                }
+                while (nodes == null && ThreadSleep5Minutes());
+
                 var kmNode = nodes.FirstOrDefault(n => n.InnerText.Contains("Kilometerstand"));
                 if (kmNode == null)
                     return 0;
