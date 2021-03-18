@@ -181,8 +181,8 @@ namespace Mobile
             var a = mainNode.SelectSingleNode(".//a");
             var url = string.Format("https://www.ebay-kleinanzeigen.de{0}", a.GetAttributeValue("href", "NotFound"));
             var title = a.InnerText;
-            var detailNode = node.SelectSingleNode(".//div[@class='aditem-details']");
-            var price = detailNode.SelectSingleNode(".//strong").InnerText;
+            var detailNode = node.SelectSingleNode(".//p[@class='aditem-main--middle--price']");
+            var price = detailNode.InnerText.Trim();
 
             return new Tuple<string, string, string>(title, price, url);
         }
