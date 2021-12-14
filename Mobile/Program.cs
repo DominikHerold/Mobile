@@ -50,36 +50,6 @@ namespace Mobile
             }
         }
 
-        private static void DoMobile(string mobileUrl)
-        {
-            var data = DownloadString(mobileUrl);
-            var nodes = GetNodes(data);
-            foreach (var node in nodes)
-            {
-                var parent = node.ParentNode.ParentNode.ParentNode.ParentNode.ParentNode.ParentNode;
-                var href = parent.GetAttributeValue("href", "NotFound");
-                var ampIndex = href.IndexOf("&", StringComparison.Ordinal);
-                var url = href.Substring(0, ampIndex);
-                if (!Urls.Add(url))
-                    continue;
-
-                if (GetMobileKm(url) > 110000)
-                    continue;
-
-                var title = parent.SelectSingleNode(".//span[@class='h3 u-text-break-word']").InnerText;
-                var price = parent.SelectSingleNode(".//span[@class='h3 u-block']").InnerText;
-
-                if (!title.Contains("Ford") && !title.Contains("ford") && !title.Contains("FORD"))
-                    continue;
-
-                Console.WriteLine(title);
-                Console.WriteLine(price);
-                Console.WriteLine(url);
-
-                SendToPushoverApi(title, price, url);
-            }
-        }
-
         private static bool ThreadSleep5Minutes()
         {
             Console.WriteLine("delay");
@@ -157,15 +127,6 @@ namespace Mobile
             }
         }
 
-        private static IEnumerable<HtmlNode> GetNodes(string data)
-        {
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(data);
-            var nodes = htmlDoc.DocumentNode.SelectNodes("//span[@class='new-headline-label']");
-
-            return nodes;
-        }
-
         private static IEnumerable<HtmlNode> GetEbayNodes(string data)
         {
             var htmlDoc = new HtmlDocument();
@@ -218,28 +179,6 @@ namespace Mobile
                     return 0;
 
                 var kmString = new string(kmNode.SelectSingleNode(".//span").InnerText.Where(char.IsDigit).ToArray());
-                var km = Convert.ToInt32(kmString);
-                return km;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return 0;
-            }
-        }
-
-        private static int GetMobileKm(string url)
-        {
-            try
-            {
-                var mobileData = DownloadString(url);
-                var htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(mobileData);
-                var kmNode = htmlDoc.DocumentNode.SelectSingleNode("//div[@id='rbt-mileage-v']");
-                if (kmNode == null)
-                    return 0;
-
-                var kmString = new string(kmNode.InnerText.Where(char.IsDigit).ToArray());
                 var km = Convert.ToInt32(kmString);
                 return km;
             }
