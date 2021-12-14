@@ -13,7 +13,7 @@ namespace Mobile
     {
         private static Timer Timer;
 
-        private static readonly HashSet<string> Urls = new HashSet<string>();
+        private static HashSet<string> Urls = new HashSet<string>();
 
         private const string PushoverKey = "token=foo&user=bar&message="; // ToDo change
 
@@ -50,10 +50,16 @@ namespace Mobile
             }
         }
 
-        private static bool ThreadSleep5Minutes()
+        private static bool ThreadSleep5Minutes(bool throwException = false)
         {
             Console.WriteLine("delay");
             Task.Delay(TimeSpan.FromMinutes(5)).GetAwaiter().GetResult();
+
+            if (throwException)
+            {
+                Urls = new HashSet<string>();
+                throw new Exception("foo");
+            }
 
             return true;
         }
@@ -68,7 +74,7 @@ namespace Mobile
                 var ebayData = DownloadString(ebayUrl);
                 ebayNodes = GetEbayNodes(ebayData);
             }
-            while (ebayNodes == null && ThreadSleep5Minutes());
+            while (ebayNodes == null && ThreadSleep5Minutes(true));
 
             foreach (var ebayNode in ebayNodes)
             {
@@ -172,7 +178,7 @@ namespace Mobile
                     htmlDoc.LoadHtml(ebayData);
                     nodes = htmlDoc.DocumentNode.SelectNodes("//li[@class='addetailslist--detail']");
                 }
-                while (nodes == null && ThreadSleep5Minutes());
+                while (nodes == null && ThreadSleep5Minutes(true));
 
                 var kmNode = nodes.FirstOrDefault(n => n.InnerText.Contains("Kilometerstand"));
                 if (kmNode == null)
