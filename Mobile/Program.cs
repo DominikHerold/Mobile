@@ -21,6 +21,8 @@ namespace Mobile
         {
             Console.WriteLine("Start");
 
+            SendToPushoverApi("Start", "Start", "Start");
+
             DoStart("https://www.ebay-kleinanzeigen.de/s-wohnwagen-mobile/ford-nugget/k0c220");
             DoStart("https://www.ebay-kleinanzeigen.de/s-ford-euroline/k0");
 
